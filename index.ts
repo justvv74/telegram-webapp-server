@@ -22,60 +22,80 @@ const bot = new TelegramBot(botToken, { polling: true });
 
 const corsOptions = {
   origin: `${process.env.ACAO}`,
-  // credentials: true,
 };
 
 app.use(cors(corsOptions));
 
-app.all('*', function (req, res, next) {
-  res.header(
-    'Access-Control-Allow-Origin',
-    'https://telegram-webapp-client.vercel.app'
-  );
+interface IGlobHeaderRes {
+  header: (a: string, b: string) => void;
+}
+
+app.all('*', (req: any, res: IGlobHeaderRes, next: any) => {
+  res.header('Access-Control-Allow-Origin', `${process.env.ACAO}`);
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
 
-async function getPhotosListByTagName(userId) {
+async function getPhotosListByTagName(userId: string) {
   return await knex('saved_image')
     .select()
     .where({ sender_tg_id: userId })
-    .then((res) => {
+    .then((res: { tag: string }) => {
       return res;
     });
 }
 
-async function getBlobFromImage(url) {
+async function getBlobFromImage(url: string) {
   const { Blob } = require('buffer');
   const result = await requester(url)
-    .then((res) => {
+    .then((res: any) => {
       return res.buffer();
     })
-    .then((res) => {
+    .then((res: any) => {
       return new Blob([res], { type: 'image/png' });
     })
-    .catch((err) => {
+    .catch((err: any) => {
       return err;
     });
 
   return result;
 }
 
+interface ISearchReq {
+  body: {
+    tag: string;
+    userId: string;
+  };
+}
+
+interface ISearchRes {
+  status: (e: number) => {
+    send: (
+      e?:
+        | {
+            botId?: string;
+            photosList?: string[];
+          }
+        | string
+    ) => void;
+  };
+}
+
 app.post(
   '/search',
   bodyParser.urlencoded({ extended: false }),
-  async (req, res) => {
+  async (req: ISearchReq, res: ISearchRes) => {
     try {
       const { userId, tag } = req.body;
       const photosList = await getPhotosListByTagName(userId);
-      const filtredList = photosList.filter((item) =>
+      const filtredList = photosList.filter((item: { tag: string }) =>
         String(item.tag).toLowerCase().includes(tag.toLowerCase())
       );
       console.log(userId, tag);
       await Promise.all(
-        await filtredList.map(async (item) => {
+        await filtredList.map(async (item: { image_id: string }) => {
           return (await bot.getFile(item.image_id)).file_path;
         })
       )
@@ -83,43 +103,60 @@ app.post(
           res.status(200).send({ botId: botToken, photosList: response });
         })
         .catch((err) => res.status(404).send(String(err)));
-    } catch (err) {
+    } catch (err: any) {
       res.status(400).send(err.message);
     }
   }
 );
 
+interface IPhotoReq {
+  body: {
+    url: string;
+  };
+}
+
+interface IPhotoRes {
+  status: (e: number) => {
+    type: (e: IBlob) => {};
+    send: (e: string) => void;
+  };
+  send: (e: Buffer) => void;
+  sendStatus: (e: number) => void;
+}
+
+interface IBlob extends Blob {
+  type: 'image/png';
+}
+
 app.post(
   '/photo',
   bodyParser.urlencoded({ extended: false }),
-  async (req, res) => {
+  async (req: IPhotoReq, res: IPhotoRes) => {
     try {
       const url = req.body.url;
       const blob = await getBlobFromImage(url);
 
       if (blob.constructor.name === 'Blob') {
         res.status(201).type(blob.type);
-        blob.arrayBuffer().then((buf) => {
+        blob.arrayBuffer().then((buf: any) => {
           res.send(Buffer.from(buf));
         });
       } else {
         res.sendStatus(400);
       }
-    } catch (err) {
+    } catch (err: any) {
       res.status(400).send(err.message);
     }
   }
 );
 
-app.get('/test', async (req, res) => {
-  try {
-    res.header('Access-Control-Allow-Origin', '*').status(200).send('test: ok');
-  } catch (err) {
-    res.status(400).send(String(err));
-  }
-});
+interface IUseGlobErrorRes {
+  status: (e: number) => {
+    send: (e: string) => void;
+  };
+}
 
-app.use((err, req, res, next) => {
+app.use((err: any, req: any, res: IUseGlobErrorRes, next: any) => {
   res.status(500).send(String(err.message));
 
   next();
