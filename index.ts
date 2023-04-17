@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const TelegramBot = require('node-telegram-bot-api');
 const requester = require('node-fetch');
+const cors = require('cors');
 
 const knex = require('knex')({
   client: 'pg',
@@ -19,14 +20,21 @@ const app = express();
 const botToken = process.env.BOT_TOKEN || '';
 const bot = new TelegramBot(botToken, { polling: true });
 
-interface IGlobHeaderRes {
-  header: (a: string, b: string) => void;
-}
+const corsOptions = {
+  origin: process.env.ACAO,
+  // credentials: true,
+};
 
-app.all('*', (req: any, res: IGlobHeaderRes, next: () => void) => {
+app.use(cors(corsOptions));
+
+// interface IGlobHeaderRes {
+//   header: (a: string, b: string) => void;
+// }
+
+app.all('*', (req: any, res: any, next: () => void) => {
   res.header(
     'Access-Control-Allow-Origin',
-    process.env.ACAO || 'http://localhost:3000'
+    process.env.ACAO || 'https://telegram-webapp-client.vercel.app'
   );
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
