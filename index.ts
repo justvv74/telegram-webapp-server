@@ -20,27 +20,27 @@ const app = express();
 const botToken = process.env.BOT_TOKEN || '';
 const bot = new TelegramBot(botToken, { polling: true });
 
-const corsOptions = {
-  origin: process.env.ACAO,
-  // credentials: true,
-};
+// const corsOptions = {
+//   origin: process.env.ACAO,
+//   // credentials: true,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 // interface IGlobHeaderRes {
 //   header: (a: string, b: string) => void;
 // }
 
-app.all('*', (req: any, res: any, next: () => void) => {
-  res.header(
-    'Access-Control-Allow-Origin',
-    process.env.ACAO || 'https://telegram-webapp-client.vercel.app'
-  );
-  res.header('Vary', 'Origin');
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// app.all('*', (req: any, res: any, next: () => void) => {
+//   res.header(
+//     'Access-Control-Allow-Origin',
+//     process.env.ACAO || 'https://telegram-webapp-client.vercel.app'
+//   );
+//   res.header('Vary', 'Origin');
+//   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type');
+//   next();
+// });
 
 async function getPhotosListByTagName(userId: string) {
   return await knex('saved_image')
