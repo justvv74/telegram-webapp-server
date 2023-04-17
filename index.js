@@ -27,7 +27,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.all('*', (req, res, next) => {
+app.all('*', function (req, res, next) {
   res.header(
     'Access-Control-Allow-Origin',
     'https://telegram-webapp-client.vercel.app'
