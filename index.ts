@@ -31,13 +31,13 @@ app.use(cors(corsOptions));
 //   header: (a: string, b: string) => void;
 // }
 
-app.all('*', (req: any, res: any, next: any) => {
-  res.header('Access-Control-Allow-Origin', `${process.env.ACAO}`);
-  res.header('Vary', 'Origin');
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// app.all('*', (req: any, res: any, next: any) => {
+//   res.header('Access-Control-Allow-Origin', `${process.env.ACAO}`);
+//   res.header('Vary', 'Origin');
+//   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type');
+//   next();
+// });
 
 async function getPhotosListByTagName(userId: string) {
   return await knex('saved_image')
@@ -153,7 +153,7 @@ app.post(
 
 app.get('/test', async (req: any, res: any) => {
   try {
-    res.status(200).send('test: ok');
+    res.header('Access-Control-Allow-Origin', '*').status(200).send('test: ok');
   } catch (err) {
     res.status(400).send(String(err));
   }
