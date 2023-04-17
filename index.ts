@@ -89,7 +89,7 @@ app.post(
       const filtredList = photosList.filter((item: { tag: string }) =>
         String(item.tag).toLowerCase().includes(tag.toLowerCase())
       );
-
+      console.log(userId, tag);
       await Promise.all(
         await filtredList.map(async (item: { image_id: string }) => {
           return (await bot.getFile(item.image_id)).file_path;
