@@ -31,7 +31,7 @@ app.use(cors(corsOptions));
 //   header: (a: string, b: string) => void;
 // }
 
-app.all('*', (req: any, res: any, next: () => void) => {
+app.all('*', (req: any, res: any, next: any) => {
   res.header('Access-Control-Allow-Origin', `${process.env.ACAO}`);
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
@@ -165,7 +165,7 @@ interface IUseGlobErrorRes {
   };
 }
 
-app.use((err: any, req: any, res: IUseGlobErrorRes, next: () => void) => {
+app.use((err: any, req: any, res: IUseGlobErrorRes, next: any) => {
   res.status(500).send(String(err.message));
 
   next();
