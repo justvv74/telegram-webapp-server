@@ -80,7 +80,14 @@ app.post(
         })
       )
         .then((response) => {
-          res.status(200).send({ botId: botToken, photosList: response });
+          res
+            .header(
+              'Access-Control-Allow-Origin',
+              'https://telegram-webapp-client.vercel.app'
+            )
+            .header('Vary', 'Origin')
+            .status(200)
+            .send({ botId: botToken, photosList: response });
         })
         .catch((err) => res.status(404).send(String(err)));
     } catch (err) {
