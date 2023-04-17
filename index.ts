@@ -26,7 +26,7 @@ interface IGlobHeaderRes {
 app.all('*', (req: any, res: IGlobHeaderRes, next: () => void) => {
   res.header(
     'Access-Control-Allow-Origin',
-    process.env.ACAO || 'https://telegram-webapp-client.vercel.app/'
+    process.env.ACAO || 'http://localhost:3000'
   );
   res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
@@ -146,6 +146,14 @@ app.post(
   }
 );
 
+app.get('/test', async (req: any, res: any) => {
+  try {
+    res.status(200).send('test: ok');
+  } catch (err) {
+    res.status(400).send(String(err));
+  }
+});
+
 interface IUseGlobErrorRes {
   status: (e: number) => {
     send: (e: string) => void;
@@ -163,3 +171,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`  Listening on http://localhost:${port}`);
 });
+
+export {};
