@@ -81,6 +81,7 @@ interface ISearchRes {
         | string
     ) => void;
   };
+  sendStatus: (e: number) => void;
 }
 
 app.post(
@@ -89,6 +90,12 @@ app.post(
   async (req: ISearchReq, res: ISearchRes) => {
     try {
       const { userId, tag } = req.body;
+
+      if (userId === '') {
+        res.sendStatus(401);
+        return;
+      }
+
       const photosList = await getPhotosListByTagName(userId);
       const filtredList = photosList.filter((item: { tag: string }) =>
         String(item.tag).toLowerCase().includes(tag.toLowerCase())
