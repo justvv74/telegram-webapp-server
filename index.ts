@@ -100,11 +100,13 @@ app.post(
       const filtredList = photosList.filter((item: { tag: string }) =>
         String(item.tag).toLowerCase().includes(tag.toLowerCase())
       );
-      console.log(userId, tag);
+      console.log(filtredList);
       await Promise.all(
-        await filtredList.map(async (item: { image_id: string }) => {
-          return (await bot.getFile(item.image_id)).file_path;
-        })
+        await filtredList.map(
+          async (item: { image_id: string; tag: string }) => {
+            return [(await bot.getFile(item.image_id)).file_path, item.tag];
+          }
+        )
       )
         .then((response) => {
           res.status(200).send({ botId: botToken, photosList: response });
@@ -169,7 +171,7 @@ app.use((err: any, req: any, res: IUseGlobErrorRes, next: any) => {
   next();
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.listen(port, () => {
   console.log(`  Listening on http://localhost:${port}`);
