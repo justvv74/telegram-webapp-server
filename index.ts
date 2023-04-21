@@ -63,6 +63,10 @@ async function getBlobFromImage(url: string) {
   return result;
 }
 
+// async function sendToChat(params:type) {
+
+// }
+
 interface ISearchReq {
   body: {
     tag: string;
@@ -100,11 +104,14 @@ app.post(
       const filtredList = photosList.filter((item: { tag: string }) =>
         String(item.tag).toLowerCase().includes(tag.toLowerCase())
       );
-      console.log(filtredList);
       await Promise.all(
         await filtredList.map(
           async (item: { image_id: string; tag: string }) => {
-            return [(await bot.getFile(item.image_id)).file_path, item.tag];
+            return [
+              (await bot.getFile(item.image_id)).file_path,
+              item.tag,
+              item.image_id,
+            ];
           }
         )
       )
@@ -125,12 +132,12 @@ interface IPhotoReq {
 }
 
 interface IPhotoRes {
-  status: (e: number) => {
-    type: (e: IBlob) => {};
+  status?: (e: number) => {
+    type?: (e: IBlob) => {};
     send: (e: string) => void;
   };
   send: (e: Buffer) => void;
-  sendStatus: (e: number) => void;
+  sendStatus?: (e: number) => void;
 }
 
 interface IBlob extends Blob {
@@ -159,6 +166,29 @@ app.post(
   }
 );
 
+interface IToChatReq {
+  body: {
+    userId: string;
+    fileId: string;
+  };
+}
+
+app.post(
+  '/tochat',
+  bodyParser.urlencoded({ extended: false }),
+  async (req: IToChatReq, res: IPhotoRes) => {
+    try {
+      const { userId, fileId } = req.body;
+      bot
+        .sendPhoto(userId, fileId)
+        .then(() => res.status(200).send('sent to chat'))
+        .catch(() => res.sendStatus(400));
+    } catch (err: any) {
+      res.status(400).send(err.message);
+    }
+  }
+);
+
 interface IUseGlobErrorRes {
   status: (e: number) => {
     send: (e: string) => void;
@@ -171,7 +201,7 @@ app.use((err: any, req: any, res: IUseGlobErrorRes, next: any) => {
   next();
 });
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`  Listening on http://localhost:${port}`);
